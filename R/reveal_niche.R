@@ -4,7 +4,7 @@
 #' @name reveal_niche
 #' @export
 
-reveal_niche <- function(sp, fit_data, predict_data,
+reveal_niche <- function(spp, fit_data, predict_data,
   # options for presence and absence points. This is things like the density 
   # of background points, absences or not, the size of buffer around presence
   # points for absence sampling. This will also include options for the
@@ -91,23 +91,23 @@ reveal_niche <- function(sp, fit_data, predict_data,
   # 1.1.3) Check class of points object to find out what it is.
 
 
-  # Find out what sp is.
+  # Find out what spp is.
   if (points_opts$download) {
     # download species data from GBIF.
-    sp <- data_download_function(sp, other, arguments)
+    spp <- data_download_function(spp, other, arguments)
   } else {
-    # If download is false, then we assume that "sp" is either a filename
+    # If download is false, then we assume that "spp" is either a filename
     # or an object containing data.
     # if it is a filename it will be of class character.
-    if (class(sp) == "character") {
+    if (class(spp) == "character") {
       # check that the file exists.
-      if (file.exists(sp)) {
-        sp <- open_sp(sp, points_opts$shapefile)
+      if (file.exists(spp)) {
+        spp <- open_sp(spp, points_opts$shapefile)
       } else {
-        stop("sp file does not exist.")
+        stop("spp file does not exist.")
       }
     }
-    # now sp is either read in, or was already an object with a class.
+    # now spp is either read in, or was already an object with a class.
     # identify the class. If the class is data.frame or matrix then it
     # needs to be converted into a spatialpoints object and assigned a
     # proj4string. If no projection is specified, then assume lat lon,
@@ -116,20 +116,22 @@ reveal_niche <- function(sp, fit_data, predict_data,
     # if the class is polygon then it means points need to be sampled from
     # within the polygon specified - there is code for this in the sdmpl
     # package.
-    if (class(sp) == "SpatialPolygonsDataFrame") {
+    if (class(spp) == "SpatialPolygonsDataFrame") {
       
-    } else if (class(sp) == "data.frame" | class(sp) == "matrix") {
+    } else if (class(spp) == "data.frame" | class(spp) == "matrix") {
       # column names can either be "x y" or "lat lon" or "lat long" or
       # "latitude longitude". Find out which it is, and the order so that
       # the coordinate setting works properly.
-      coord_cols <- check_coord_cols(sp)
+      coord_cols <- check_coord_cols(spp)
       # If it's none of the above then check that there are only two columns.
       # If there are then assume that the first is x, the second is y, and 
       # cat a warning to the screen.
-
+      spp <- spp[coord_cols, ]
+      colnames(spp) <- c("x", "y")
+      sp::coordinates(spp) <- ~ x + y
       # If none of the above error and stop.
-    } else if (class(sp) == "SpatialPoints" | 
-      class(sp) == "SpatialPointsDataFrame") {
+    } else if (class(spp) == "SpatialPoints" | 
+      class(spp) == "SpatialPointsDataFrame") {
 
     }
   }

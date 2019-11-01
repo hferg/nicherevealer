@@ -1,16 +1,16 @@
-open_sp <- function(sp, shapefile) {
+open_sp <- function(spp, shapefile) {
   if (shapefile) {
     # sort this out later on...
     # trycatch()
   } else {
-    ext <- strsplit(sp, "\\.")[[1]]
+    ext <- strsplit(spp, "\\.")[[1]]
     ext <- ext[length(ext)]  
     if (ext == "RDS") {
-      sp <- readRDS(sp)
+      spp <- readRDS(spp)
     } else if (ext == "csv") {
-      sp <- read.csv(sp)
+      spp <- read.csv(spp)
     } else if (ext == "txt") {
-      sp <- read.table(sp)
+      spp <- read.table(spp)
     } else if (ext == "xls" | ext == "xlsx") {
       stop(paste("please convert", ext, "file into comma-delimited (.csv)"))
     } else {
@@ -20,27 +20,27 @@ open_sp <- function(sp, shapefile) {
         file.")
     }
   }
-  return(sp)
+  return(spp)
 }
 
-check_coord_cols <- function(sp) {
-  if (all(c("x", "y") %in% colnames(sp))) {
+check_coord_cols <- function(spp) {
+  if (all(c("x", "y") %in% colnames(spp))) {
     coord_cols <- c("x", "y")
-  } else if (all(c("lat", "lon") %in% colnames(sp))) {
+  } else if (all(c("lat", "lon") %in% colnames(spp))) {
     coord_cols <- c("lat", "lon")
-  } else if (all(c("lat", "long") %in% colnames(sp))) {
+  } else if (all(c("lat", "long") %in% colnames(spp))) {
     coord_cols <- c("lat", "long")
-  } else if (all(c("lati", "longi") %in% colnames(sp))) {
+  } else if (all(c("lati", "longi") %in% colnames(spp))) {
     coord_cols <- c("lati", "longi")
-  } else if (all(c("latitude", "longitude") %in% colnames(sp))) {
+  } else if (all(c("latitude", "longitude") %in% colnames(spp))) {
     coord_cols <- c("latitude", "longitude")
   } else {
-    if (ncol(sp) == 2) {
-      coord_cols <- colnames(sp)
-      warning("Column names of sp are unexpected - assuming the first column 
+    if (ncol(spp) == 2) {
+      coord_cols <- colnames(spp)
+      warning("Column names of spp are unexpected - assuming the first column 
         is latitude and the second is longitude.")
     } else {
-      stop("Cannot find coordinates in sp. Columns for coordinates should be 
+      stop("Cannot find coordinates in spp Columns for coordinates should be 
         labelled one of:
         'x' and 'y',
         'lat' and 'lon',
